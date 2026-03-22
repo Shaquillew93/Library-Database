@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Database</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f0f0;
+            color: #1a1a1a;
+            padding: 20px 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 9px 18px;
+            background: #fff;
+            border: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 2px solid transparent;
+            margin-bottom: 30px;
+        }
+
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        /* Panels */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Form */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: flex-end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input,
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .button-blue {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .button-blue:hover {
+            background: #1e40af;
+        }
+
+        .button-gray {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .button-gray:hover {
+            background: #c0c0c0;
+        }
+
+        .button-red {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .button-red:hover {
+            background: #b91c1c;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f9f9f9;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f5f5f5;
+        }
+
+        .table-wrap {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #924000;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 0;
+            color: #777;
+            font-size: 1.1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 50%;
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 1rem;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Library Database</h1>
+    <p class="subtitle">Tables: books | members | loans</p>
+
+    <div class="tabs">
+        <button class="tab active" onClick="showTab('books', this)">Books</button>
+        <button class="tab" onClick="showTab('members', this)">Members</button>
+        <button class="tab" onClick="showTab('loans', this)">Loans</button>
+    </div>
+
+    // Books
+    <div class="panel active" id="tab-books">
+        <div class="form-row">
+            <div class="field"><label>Title</label><input id="book-title" placeholder="Book Title"></div>
+            <div class="field"><label>Author</label><input id="book-author" placeholder="Author Name"></div>
+            <div class="field" style="max-width:140px">
+                <label>Genre</label>
+                <select id="book-genre">
+                    <option>Fiction</option>
+                    <option>Non-Fiction</option>
+                    <option>Technology</option>
+                    <option>History</option>
+                    <option>Biography</option>
+                    <option>Self-Help</option>
+                </select>
+            </div>
+            <button class="button button-blue" onClick="addBook()">+Add Book</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Genre</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="books-table-body">
+                    <!-- Book rows will go here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    // Members
+    <div class="panel" id="tab-members">
+        <div class="form-row">
+            <div class="field"><label>Name</label><input id="member-name" placeholder="Member Name"></div>
+            <div class="field"><label>Email</label><input id="member-email" placeholder="Email Address"></div>
+            <button class="button button-blue" onClick="addMember()">+Add Member</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Active Loans</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="members-table-body">
+                    <!-- Member rows will go here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    // Loans
+    <div class="panel" id="tab-loans">
+        <div class="form-row">
+            <div class="field"><label>Member</label>
+                <select id="l-book">
+                    <option value="">- select -</option>
+                </select>
+            </div>
+            <button class="button button-blue" onClick="addLoan()">Check Out Book</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Book</th>
+                        <th>Member</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="loans-table-body">
+                    <!-- Loan rows will go here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // JavaScript code to handle tabs, data management, and interactions will go here
+
+        let db = {
+            books: [],
+            members: [],
+            loans: [],
+            bookId: 1,
+            memberId: 1,
+            loanId: 1
+        };
+
+        // Seed
+
+        function showTab(name, button) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            button.classList.add('active');
+            document.getElementById(`tab-${name}`).classList.add('active');
+            if (name === 'Loans') fillDropdowns();
+        }
+
+        // Books
+        function addBook() {
+            const title = document.getElementById('book-title').value.trim();
+            const author = document.getElementById('book-author').value.trim();
+            const genre = document.getElementById('book-genre').value;
+
+            if (!title || !author) {
+                return notify('Fill in title and author');
+            }
+
+            db.books.push({ id: db.bookId++, title, author, genre, available: true });
+            renderBooks();
+            notify('Book added');
+            document.getElementById('book-title').value = '';
+            document.getElementById('book-author').value = '';
+        }
+
+        function deleteBook(id) {
+            if (db.books.find(b => b.id === id && !b.available))
+                return notify('Cannot delete a book that is currently loaned out');
+            db.books = db.books.filter(b => b.id !== id);
+            renderBooks();
+            notify('Book deleted');
+        }
+
+        function renderBooks() {
+            const tbody = document.getElementById('books-table-body');
+            if (!db.books.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty">No books yet</td></tr>`; return; }
+            tbody.innerHTML = db.books.map
+                (book => `<tr><td style="color: #333">${book.id}</td>
+                        <td><strong>${book.title}</strong></td>
+                        <td>${book.author}</td>
+                        <td><span class="badge ${book.available ? 'badge-green' : 'badge-red'}">${book.available ? 'Available' : 'Loaned Out'}</span></td>
+                        <td><button class="button button-gray" onClick="deleteBook(${book.id})">Delete</button></td>
+                        </tr>`).join('');
+        }
+
+        // Members
+        function addMember() {
+            const name = document.getElementById('member-name').value.trim();
+            const email = document.getElementById('member-email').value.trim();
+
+            if (!name || !email) {
+                return notify('Fill in name and email');
+            }
+
+            db.members.push({ id: db.memberId++, name, email });
+            renderMembers();
+            notify('Member added');
+            document.getElementById('member-name').value = '';
+            document.getElementById('member-email').value = '';
+        }
+
+        function deleteMember(id) {
+            if (db.loans.find(l => l.memberId === id && !l.returned))
+                return notify('Cannot delete a member with active loans');
+            db.members = db.members.filter(m => m.id !== id);
+            renderMembers();
+            notify('Member deleted');
+        }
+
+        function renderMembers() {
+            const tbody = document.getElementById('members-table-body');
+            if (!db.members.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">No members yet</td></tr>`; return; }
+            tbody.innerHTML = db.members.map
+                (member => {
+                    const activeLoans = db.loans.filter(l => l.memberId === member.id && !l.returned).length;
+                    return `<tr><td style="color: #333">${member.id}</td>
+                        <td><strong>${member.name}</strong></td>
+                        <td>${member.email}</td>
+                        <td>${activeLoans}</td>
+                        <td><button class="button button-gray" onClick="deleteMember(${member.id})">Delete</button></td>
+                        </tr>`;
+                }).join('');
+        }
+
+        // Loans
+        function fillDropdowns() {
+            const bookSelect = document.getElementById('l-book');
+            const memberSelect = document.getElementById('l-member');
+            bookSelect.innerHTML = `<option value="">- select book -</option>` + db.books.filter(b => b.available).map(b => `<option value="${b.id}">${b.title}</option>`).join('');
+            memberSelect.innerHTML = `<option value="">- select member -</option>` + db.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        function addLoan() {
+            const bookId = parseInt(document.getElementById('l-book').value);
+            const memberId = parseInt(document.getElementById('l-member').value);
+
+            if (!bookId || !memberId) {
+                return notify('Select both book and member');
+            }
+
+            const book = db.books.find(b => b.id === bookId);
+            if (!book.available) {
+                return notify('Book is not available');
+            }
+
+            book.available = false;
+            db.loans.push({ id: db.loanId++, bookId, memberId, date: new Date(), returned: false });
+            renderBooks();
+            renderLoans();
+            notify('Book checked out');
+        }
+
+        function returnBook(loanId) {
+            const loan = db.loans.find(l => l.id === loanId);
+            if (loan) {
+                loan.returned = true;
+                const book = db.books.find(b => b.id === loan.bookId);
+                if (book) book.available = true;
+                renderBooks();
+                renderLoans();
+                notify('Book returned');
+            }
+        }
+
+        function renderLoans() {
+            const tbody = document.getElementById('loans-table-body');
+            if (!db.loans.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty">No loans yet</td></tr>`; return; }
+            tbody.innerHTML = db.loans.map
+                (loan => {
+                    const book = db.books.find(b => b.id === loan.bookId);
+                    const member = db.members.find(m => m.id === loan.memberId);
+                    return `<tr><td style="color: #333">${loan.id}</td>
+                    <td>${book ? book.title : 'Deleted Book'}</td>
+                    <td>${member ? member.name : 'Deleted Member'}</td>
+                    <td>${loan.date.toLocaleDateString()}</td>
+                    <td><span class="badge ${!loan.returned ? 'badge-yellow' : 'badge-green'}">${!loan.returned ? 'Checked Out' : 'Returned'}</span></td>
+                    <td>${!loan.returned ? `<button class="button button-blue" onClick="returnBook(${loan.id})">Return</button>` : ''}</td>
+                    </tr>`;
+                }).join('');
+        }
+
+        // Utilities
+        let toastTimer;
+        function notify(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function render() {
+            renderBooks();
+            renderMembers();
+            renderLoans();
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
